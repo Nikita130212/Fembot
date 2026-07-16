@@ -1,9 +1,15 @@
-﻿{
-  "geode": "v5.8.2",
-  "id": "com.niksup.fembot",
-  "name": "Fembot",
-  "version": "v1.0.0",
-  "developer": "Niksup",
-  "description": "🌸 Fembot - Macro Player",
-  "dependencies": []
+{
+	"geode": "$GEODE_VERSION",
+	"gd": {
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
+	},
+	"id": "com.Niksup.fembot",
+	"name": "Fembot",
+	"version": "v0.0.1",
+	"developer": "Niksup",
+	"description": "🌸 Fembot - Macro Player",
+	"dependencies": []
 }

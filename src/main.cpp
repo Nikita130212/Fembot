@@ -1,6 +1,9 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 using namespace geode::prelude;
 
@@ -186,8 +189,7 @@ public:
     
     void nextMacro() {
         if (m_macroList.empty()) {
-            auto alert = FLAlertLayer::create("Fembot", "💔 No macros available!", "OK");
-            alert->show();
+            FLAlertLayer::create("Fembot", "💔 No macros available!", "OK")->show();
             return;
         }
         
@@ -204,14 +206,12 @@ public:
         }
         m_currentMacro = macro;
         
-        auto alert = FLAlertLayer::create("Fembot", ("🌸 " + macro.name).c_str(), "OK");
-        alert->show();
+        FLAlertLayer::create("Fembot", ("🌸 " + macro.name).c_str(), "OK")->show();
     }
     
     void previousMacro() {
         if (m_macroList.empty()) {
-            auto alert = FLAlertLayer::create("Fembot", "💔 No macros available!", "OK");
-            alert->show();
+            FLAlertLayer::create("Fembot", "💔 No macros available!", "OK")->show();
             return;
         }
         
@@ -228,21 +228,18 @@ public:
         }
         m_currentMacro = macro;
         
-        auto alert = FLAlertLayer::create("Fembot", ("🌸 " + macro.name).c_str(), "OK");
-        alert->show();
+        FLAlertLayer::create("Fembot", ("🌸 " + macro.name).c_str(), "OK")->show();
     }
     
     void play() {
         if (!m_currentMacro.isLoaded || m_currentMacro.events.empty()) {
-            auto alert = FLAlertLayer::create("Fembot", "💔 No macro loaded!", "OK");
-            alert->show();
+            FLAlertLayer::create("Fembot", "💔 No macro loaded!", "OK")->show();
             return;
         }
         
         auto playLayer = PlayLayer::get();
         if (!playLayer) {
-            auto alert = FLAlertLayer::create("Fembot", "💔 Not in a level!", "OK");
-            alert->show();
+            FLAlertLayer::create("Fembot", "💔 Not in a level!", "OK")->show();
             return;
         }
         
@@ -279,8 +276,7 @@ public:
         
         if (m_nextEventIndex >= m_currentMacro.events.size()) {
             stop();
-            auto alert = FLAlertLayer::create("Fembot", "✅ Macro finished!", "OK");
-            alert->show();
+            FLAlertLayer::create("Fembot", "✅ Macro finished!", "OK")->show();
         }
     }
     
@@ -324,47 +320,52 @@ protected:
     
     bool init() {
         auto winSize = CCDirector::sharedDirector()->getWinSize();
-        this->setContentSize(CCSize(480, 400));
+        this->setContentSize(CCSize(500, 430));
         this->setPosition(winSize / 2);
         
+        // Розовый фон
         auto bg = CCSprite::create("GJ_square01.png");
-        bg->setScaleX(480 / bg->getContentWidth());
-        bg->setScaleY(400 / bg->getContentHeight());
+        bg->setScaleX(500 / bg->getContentWidth());
+        bg->setScaleY(430 / bg->getContentHeight());
         bg->setColor(ccc3(255, 182, 193));
         bg->setOpacity(230);
         bg->setPosition(this->getContentSize() / 2);
         this->addChild(bg);
         
+        // Розовая рамка
         auto border = CCSprite::create("GJ_square02.png");
-        border->setScaleX(480 / border->getContentWidth());
-        border->setScaleY(400 / border->getContentHeight());
+        border->setScaleX(500 / border->getContentWidth());
+        border->setScaleY(430 / border->getContentHeight());
         border->setColor(ccc3(255, 105, 180));
         border->setPosition(this->getContentSize() / 2);
         this->addChild(border);
         
+        // Заголовок
         auto title = CCLabelBMFont::create("🌸 Fembot 🌸", "bigFont.fnt");
         title->setColor(ccc3(255, 20, 147));
         title->setScale(0.7f);
-        title->setPosition(240, 365);
+        title->setPosition(250, 395);
         this->addChild(title);
         
         auto menu = CCMenu::create();
         menu->setPosition(0, 0);
         this->addChild(menu);
         
+        // Текущий макрос
         std::string currentName = MacroManager::get()->getCurrentMacroName();
         m_currentMacroLabel = CCLabelBMFont::create(("Current: " + currentName).c_str(), "bigFont.fnt");
         m_currentMacroLabel->setColor(ccc3(255, 20, 147));
         m_currentMacroLabel->setScale(0.4f);
-        m_currentMacroLabel->setPosition(240, 335);
+        m_currentMacroLabel->setPosition(250, 360);
         this->addChild(m_currentMacroLabel);
         
+        // Кнопки переключения
         auto prevSpr = ButtonSprite::create("◀", "bigFont.fnt", "GJ_button_01.png", 0.5f);
         prevSpr->setColor(ccc3(200, 100, 180));
         m_prevBtn = CCMenuItemSpriteExtra::create(
             prevSpr, this, menu_selector(FembotPopup::onPrevMacro)
         );
-        m_prevBtn->setPosition(140, 335);
+        m_prevBtn->setPosition(150, 360);
         menu->addChild(m_prevBtn);
         
         auto nextSpr = ButtonSprite::create("▶", "bigFont.fnt", "GJ_button_01.png", 0.5f);
@@ -372,25 +373,26 @@ protected:
         m_nextBtn = CCMenuItemSpriteExtra::create(
             nextSpr, this, menu_selector(FembotPopup::onNextMacro)
         );
-        m_nextBtn->setPosition(340, 335);
+        m_nextBtn->setPosition(350, 360);
         menu->addChild(m_nextBtn);
         
+        // Список макросов
         auto listBg = CCSprite::create("GJ_square01.png");
-        listBg->setScaleX(440 / listBg->getContentWidth());
-        listBg->setScaleY(190 / listBg->getContentHeight());
+        listBg->setScaleX(460 / listBg->getContentWidth());
+        listBg->setScaleY(200 / listBg->getContentHeight());
         listBg->setColor(ccc3(255, 240, 245));
         listBg->setOpacity(200);
-        listBg->setPosition(240, 185);
+        listBg->setPosition(250, 200);
         this->addChild(listBg);
         
         auto listTitle = CCLabelBMFont::create("📁 Macros", "bigFont.fnt");
         listTitle->setColor(ccc3(200, 50, 150));
         listTitle->setScale(0.5f);
-        listTitle->setPosition(240, 275);
+        listTitle->setPosition(250, 300);
         this->addChild(listTitle);
         
         auto& macros = MacroManager::get()->getMacroList();
-        float yPos = 260;
+        float yPos = 285;
         int currentIndex = MacroManager::get()->getCurrentMacroIndex();
         
         for (size_t i = 0; i < macros.size() && i < 8; i++) {
@@ -429,7 +431,7 @@ protected:
                 "bigFont.fnt"
             );
             statusLabel->setScale(0.5f);
-            statusLabel->setPosition(440, yPos);
+            statusLabel->setPosition(460, yPos);
             this->addChild(statusLabel);
             
             yPos -= 25;
@@ -442,16 +444,17 @@ protected:
             );
             noMacros->setColor(ccc3(200, 50, 150));
             noMacros->setScale(0.3f);
-            noMacros->setPosition(240, 185);
+            noMacros->setPosition(250, 200);
             this->addChild(noMacros);
         }
         
+        // Кнопки управления
         auto playSpr = ButtonSprite::create("▶ Play", "bigFont.fnt", "GJ_button_01.png", 0.5f);
         playSpr->setColor(ccc3(255, 105, 180));
         m_playBtn = CCMenuItemSpriteExtra::create(
             playSpr, this, menu_selector(FembotPopup::onPlay)
         );
-        m_playBtn->setPosition(170, 60);
+        m_playBtn->setPosition(180, 75);
         menu->addChild(m_playBtn);
         
         auto stopSpr = ButtonSprite::create("⏹ Stop", "bigFont.fnt", "GJ_button_01.png", 0.5f);
@@ -459,7 +462,7 @@ protected:
         m_stopBtn = CCMenuItemSpriteExtra::create(
             stopSpr, this, menu_selector(FembotPopup::onStop)
         );
-        m_stopBtn->setPosition(310, 60);
+        m_stopBtn->setPosition(320, 75);
         menu->addChild(m_stopBtn);
         
         auto refreshSpr = ButtonSprite::create("🔄 Refresh", "bigFont.fnt", "GJ_button_01.png", 0.4f);
@@ -467,13 +470,13 @@ protected:
         m_refreshBtn = CCMenuItemSpriteExtra::create(
             refreshSpr, this, menu_selector(FembotPopup::onRefresh)
         );
-        m_refreshBtn->setPosition(240, 25);
+        m_refreshBtn->setPosition(250, 30);
         menu->addChild(m_refreshBtn);
         
         m_statusLabel = CCLabelBMFont::create("💕 Ready", "bigFont.fnt");
         m_statusLabel->setColor(ccc3(255, 20, 147));
         m_statusLabel->setScale(0.4f);
-        m_statusLabel->setPosition(240, 105);
+        m_statusLabel->setPosition(250, 120);
         this->addChild(m_statusLabel);
         
         auto closeSpr = CCSprite::createWithSpriteFrameName("GJ_closeBtn_001.png");
@@ -481,7 +484,7 @@ protected:
         auto closeBtn = CCMenuItemSpriteExtra::create(
             closeSpr, this, menu_selector(FembotPopup::onClose)
         );
-        closeBtn->setPosition(460, 380);
+        closeBtn->setPosition(480, 410);
         menu->addChild(closeBtn);
         
         return true;
