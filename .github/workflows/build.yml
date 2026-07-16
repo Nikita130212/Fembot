@@ -13,11 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Geode SDK
+        uses: geode-sdk/build-geode-mod@main
+        id: setup
+        with:
+          sdk: 'latest'
+          setup-only: true
+
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         id: build
         with:
-          sdk: 'latest'
+          sdk: ${{ steps.setup.outputs.sdk-version }}
 
       - name: Upload the built mod
         uses: actions/upload-artifact@v4
