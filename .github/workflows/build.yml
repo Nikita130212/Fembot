@@ -2,9 +2,6 @@ name: Build Geode Mod
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "main"
 
 jobs:
   build:
@@ -13,21 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Ninja manually
+      - name: Install Geode
         run: |
-          curl -L -o ninja.zip https://github.com/ninja-build/ninja/releases/latest/download/ninja-win.zip
-          7z x ninja.zip -oC:\ninja
-          echo "C:\ninja" >> $env:GITHUB_PATH
-        shell: pwsh
+          curl -L -o geode.exe https://github.com/geode-sdk/cli/releases/latest/download/geode-windows.exe
+          geode.exe sdk install --yes
+        shell: cmd
 
-      - name: Build the mod
-        uses: geode-sdk/build-geode-mod@main
-        id: build
-        with:
-          sdk: 'latest'
+      - name: Build
+        run: geode build
+        shell: cmd
 
-      - name: Upload the built mod
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Fembot-Mod
-          path: ${{ steps.build.outputs.build-output }}
+          path: build/*.geode
