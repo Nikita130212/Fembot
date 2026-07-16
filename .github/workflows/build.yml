@@ -13,12 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Ninja manually
+        run: |
+          curl -L -o ninja.zip https://github.com/ninja-build/ninja/releases/latest/download/ninja-win.zip
+          7z x ninja.zip -oC:\ninja
+          echo "C:\ninja" >> $env:GITHUB_PATH
+        shell: pwsh
+
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         id: build
         with:
           sdk: 'latest'
-          generator: 'Visual Studio 17 2022'
 
       - name: Upload the built mod
         uses: actions/upload-artifact@v4
