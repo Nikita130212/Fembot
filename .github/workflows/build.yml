@@ -13,18 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Geode SDK
-        uses: geode-sdk/build-geode-mod@main
-        id: setup
-        with:
-          sdk: 'latest'
-          setup-only: true
+      - name: Install Ninja
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "ninja.zip"
+          Expand-Archive -Path "ninja.zip" -DestinationPath "C:\ninja"
+          echo "C:\ninja" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         id: build
         with:
-          sdk: ${{ steps.setup.outputs.sdk-version }}
+          sdk: 'latest'
 
       - name: Upload the built mod
         uses: actions/upload-artifact@v4
