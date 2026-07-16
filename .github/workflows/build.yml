@@ -13,26 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Geode CLI
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/geode-sdk/cli/releases/latest/download/geode-windows.exe" -OutFile "geode.exe"
-          mkdir C:\geode
-          move geode.exe C:\geode\
-          echo "C:\geode" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
-
-      - name: Setup Geode SDK
-        run: |
-          geode sdk install --yes
-        shell: cmd
-
-      - name: Build
-        run: |
-          geode build
-        shell: cmd
+      - name: Build Geode Mod
+        uses: geode-sdk/build-geode-mod@main
+        id: build
+        with:
+          sdk: 'latest'
+          # Явно указываем использовать MSVC вместо Ninja
+          generator: 'Visual Studio 17 2022'
+          # Отключаем автоматическую установку Ninja
+          install-ninja: false
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Fembot-Mod
-          path: build/*.geode
+          path: ${{ steps.build.outputs.build-output }}
